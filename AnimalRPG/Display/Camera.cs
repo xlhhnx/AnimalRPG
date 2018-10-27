@@ -46,6 +46,16 @@ namespace AnimalRPG.Display
             return VisibleRectangle.Intersects( drawRectangle );
         }
 
+        public static Vector2 ConvertToScreenCoordinates( Vector2 worldCoordinates )
+        {
+            return worldCoordinates - Position;
+        }
+
+        public static Vector2 ConvertToWorldCoordinates( Vector2 screenCoordinates )
+        {
+            return screenCoordinates + Position;
+        }
+
         private static void CalculateVisibleRectangle()
         {
             _visibleRectangle = new Rectangle( Position.ToPoint() , Dimensions.ToPoint() );
