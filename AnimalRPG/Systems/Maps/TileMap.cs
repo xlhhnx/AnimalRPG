@@ -1,5 +1,6 @@
 ﻿using AnimalRPG.Extensions;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,19 @@ namespace AnimalRPG.Systems.Maps
             Width = width;
             Height = height;
             Tiles = new Tile[ Width , Height ];
+
+            GenerateMap();
+        }
+
+        public void Draw( SpriteBatch spriteBatch )
+        {
+            for ( var y = 0; y < Height; y++ )
+            {
+                for ( var x = 0; x < Width; x++ )
+                {
+                    Tiles[ x , y ].Draw( spriteBatch );
+                }
+            }
         }
 
         public void GenerateMap()
@@ -80,7 +94,7 @@ namespace AnimalRPG.Systems.Maps
             return tiles;
         }
 
-        public bool AreAdjacent( Tile a , Tile b ) => AreAdjacent( a.Location , b.Location );
+        public bool AreAdjacent( Tile a , Tile b ) => AreAdjacent( a.MapIndex , b.MapIndex );
         public bool AreAdjacent( Point a , Point b )
         {
             return (b - a).ToVector2().Length() == 1f;
