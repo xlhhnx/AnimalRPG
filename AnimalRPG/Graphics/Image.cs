@@ -58,6 +58,7 @@ namespace AnimalRPG.Graphics
             _sourceDimensions = sourceDimensions;
             _tint = tint;
 
+            _enabled = true;
             _drawPosition = Vector2.Zero;
             _drawDimensions = _sourceDimensions;
 
@@ -72,7 +73,8 @@ namespace AnimalRPG.Graphics
 
         public void CalculateDrawRectangle()
         {
-            _drawRectangle = new Rectangle( _drawPosition.ToPoint() , _drawDimensions.ToPoint() );
+            var drawPosition = Camera.ConvertToScreenCoordinates( _drawPosition );
+            _drawRectangle = new Rectangle( drawPosition.ToPoint() , _drawDimensions.ToPoint() );
         }
 
         public void Draw( SpriteBatch spriteBatch )

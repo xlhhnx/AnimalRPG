@@ -83,7 +83,7 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
                         break;
                     }
 
-                    var priority = a.MoveCost + parentPriority + ManhattanDistance( a.Location , endTile.Location );
+                    var priority = a.MoveCost + parentPriority + ManhattanDistance( a.MapIndex , endTile.MapIndex );
                     open.Enqueue( a , priority );
                 }
 

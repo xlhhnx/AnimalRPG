@@ -1,5 +1,8 @@
-﻿using AnimalRPG.Input;
+﻿using AnimalRPG.Display;
+using AnimalRPG.Graphics;
+using AnimalRPG.Input;
 using AnimalRPG.Input.Controllers;
+using AnimalRPG.Systems.Maps;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,20 +18,27 @@ namespace AnimalRPG
         SpriteBatch spriteBatch;
 
         InputManager _inputManager;
+        TileMap _tileMap;
 
         public AnimalRPG()
         {
-            graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager( this );
             Content.RootDirectory = "Content";
+            IsMouseVisible = true;
         }
         
         protected override void Initialize()
         {
+            Camera.Dimensions = new Vector2( GraphicsDevice.Viewport.Width , GraphicsDevice.Viewport.Width );
+            Primitive.Initialize( GraphicsDevice );
+
             _inputManager = new InputManager();
             var keyboardController = new KeyboardController(0);
             var mouseController = new MouseController(1);
             _inputManager.Controllers.Add( keyboardController.Id , keyboardController );
             _inputManager.Controllers.Add( mouseController.Id , mouseController );
+            
+            _tileMap = new TileMap( 10 , 10 );
 
             // DISABLED
             #region Input Debugging
@@ -102,7 +112,9 @@ namespace AnimalRPG
         {
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            _tileMap.Draw( spriteBatch );
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
