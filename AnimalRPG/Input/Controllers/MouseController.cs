@@ -55,10 +55,10 @@ namespace AnimalRPG.Input.Controllers
             }
 
             if ( _currentState.ScrollWheelValue != _previousState.ScrollWheelValue )
-                MouseScroll( Id , (_currentState.ScrollWheelValue - _previousState.ScrollWheelValue) / 120 , currentPosition );
+                OnMouseScroll( Id , (_currentState.ScrollWheelValue - _previousState.ScrollWheelValue) / 120 , currentPosition );
 
             if ( currentPosition != previousPosition )
-                MouseMove( Id , currentPosition );
+                OnMouseMove( Id , currentPosition );
 
             _previousState = _currentState;
         }
@@ -66,27 +66,27 @@ namespace AnimalRPG.Input.Controllers
         public void CheckButton( ButtonState previousState , ButtonState currentState , MouseButtons button , Vector2 position )
         {
             if ( currentState == ButtonState.Pressed && previousState == ButtonState.Released )
-                ButtonPress( Id , button , position );
+                OnButtonPress( Id , button , position );
             else if ( currentState == ButtonState.Pressed )
-                ButtonDown( Id , button , position );
+                OnButtonDown( Id , button , position );
             else if ( previousState == ButtonState.Pressed )
-                ButtonRelease( Id , button , position );
+                OnButtonRelease( Id , button , position );
             else
-                ButtonUp( Id , button , position );
+                OnButtonUp( Id , button , position );
         }
 
         // Static Events
-        public static event Action<int , MouseButtons , Vector2> ButtonPress = delegate
+        public static event Action<int , MouseButtons , Vector2> OnButtonPress = delegate
           { };
-        public static event Action<int , MouseButtons , Vector2> ButtonDown = delegate
+        public static event Action<int , MouseButtons , Vector2> OnButtonDown = delegate
           { };
-        public static event Action<int , MouseButtons , Vector2> ButtonRelease = delegate
+        public static event Action<int , MouseButtons , Vector2> OnButtonRelease = delegate
           { };
-        public static event Action<int , MouseButtons , Vector2> ButtonUp = delegate
+        public static event Action<int , MouseButtons , Vector2> OnButtonUp = delegate
           { };
-        public static event Action<int , Vector2> MouseMove = delegate
+        public static event Action<int , Vector2> OnMouseMove = delegate
         { };
-        public static event Action<int , int , Vector2> MouseScroll = delegate
+        public static event Action<int , int , Vector2> OnMouseScroll = delegate
         { };
     }
 }

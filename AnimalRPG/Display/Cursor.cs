@@ -35,7 +35,7 @@ namespace AnimalRPG.Display
 
         public static void Initialize( Vector2 ghostAreaDimensions)
         {
-            MouseController.MouseMove += HandleMouseMove;
+            MouseController.OnMouseMove += HandleMouseMove;
             SetGhostArea( ghostAreaDimensions );
         }
 
@@ -46,12 +46,14 @@ namespace AnimalRPG.Display
 
         public static void HandleMouseMove( int index , Vector2 position )
         {
-            if ( position.X > 0 
-                && position.Y > 0  
-                && position.X < _ghostAreaDimensions.X 
-                && position.Y < _ghostAreaDimensions.Y)
+            var pos = Camera.ConvertToWorldCoordinates( position );
+
+            if ( pos.X > 0 
+                && pos.Y > 0  
+                && pos.X < _ghostAreaDimensions.X 
+                && pos.Y < _ghostAreaDimensions.Y)
             {
-                var reduced = (position / 32).ToPoint();
+                var reduced = (pos / 32).ToPoint();
                 Ghost.DrawPosition = reduced.ToVector2() * 32;
                 Ghost.Enabled = true;
             }

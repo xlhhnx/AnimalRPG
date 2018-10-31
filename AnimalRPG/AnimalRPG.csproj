@@ -47,6 +47,8 @@
     <Compile Include="Common\IntegerComparer.cs" />
     <Compile Include="Common\Utility.cs" />
     <Compile Include="Display\Camera.cs" />
+    <Compile Include="Display\Controls\Button.cs" />
+    <Compile Include="Display\Controls\IControl.cs" />
     <Compile Include="Display\Cursor.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Systems\Maps\Tile.cs" />
     <Compile Include="Systems\Maps\TileEqualityComparer.cs" />
     <Compile Include="Systems\Maps\TileMap.cs" />
+    <Compile Include="Display\Scene.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

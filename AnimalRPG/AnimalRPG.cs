@@ -6,8 +6,7 @@ using AnimalRPG.Systems.Maps;
 using AnimalRPG.Systems.Maps.Pathfinding;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.IO;
+using AnimalRPG.Display.Controls;
 
 namespace AnimalRPG
 {
@@ -25,6 +24,7 @@ namespace AnimalRPG
         Anchor _target;
         SearchRegion<Tile> _searchRegion;
         Path<Tile> _path;
+        Button _exitButton;
 
         public AnimalRPG()
         {
@@ -32,10 +32,15 @@ namespace AnimalRPG
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             Cursor.Initialize( new Vector2( 32 * 10 ) );
+
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 800;
+            graphics.ApplyChanges();
         }
 
         protected override void Initialize()
         {
+            Camera.Position = new Vector2( -120 , -70 );
             Camera.Dimensions = new Vector2( GraphicsDevice.Viewport.Width , GraphicsDevice.Viewport.Width );
             Primitive.Initialize( GraphicsDevice );
 
@@ -47,7 +52,18 @@ namespace AnimalRPG
             _inputManager.Controllers.Add( keyboardController.Id , keyboardController );
             _inputManager.Controllers.Add( mouseController.Id , mouseController );
 
-            MouseController.ButtonPress += HandleClick;
+            MouseController.OnButtonPress += HandleClick;
+
+            _exitButton = new Button(
+                Primitive.CreateRectangle( new Vector2( 80 , 30 ) , Color.Yellow ) ,
+                Primitive.CreateRectangle( new Vector2( 80 , 30 ) , Color.Orange ) ,
+                Primitive.CreateRectangle( new Vector2( 80 , 30 ) , Color.Red )
+                )
+            {
+                Position = new Vector2( -100 , -50 ) ,
+                Dimensions = new Vector2( 80 , 30 )
+            };
+            _exitButton.OnPress += Exit;
 
             _tileMap = new TileMap( 25 , 25 );
 
@@ -138,6 +154,7 @@ namespace AnimalRPG
             if ( !ReferenceEquals( _target , null ) )
                 _target.Draw( spriteBatch );
 
+            _exitButton.Draw( spriteBatch );
             Cursor.Draw( spriteBatch );
             spriteBatch.End();
 
@@ -146,15 +163,19 @@ namespace AnimalRPG
 
         private void HandleClick( int index , MouseButtons button , Vector2 position )
         {
+            var pos = Camera.ConvertToWorldCoordinates( position );
+            if ( !_tileMap.ContainsPosition( pos ) )
+                return;
+
             if ( button == MouseButtons.Left )
             {
-                var tmpPoint = (position / 32).ToPoint();
+                var tmpPoint = (pos / 32).ToPoint();
                 var correctedPosition = tmpPoint.ToVector2() * 32;
 
                 if ( !ReferenceEquals( _anchor , null ) )
                 {
                     var rectangle = new Rectangle( _anchor.Position.ToPoint() , new Point( 32 ) );
-                    if ( rectangle.Contains( position.ToPoint() ) )
+                    if ( rectangle.Contains( pos.ToPoint() ) )
                         _anchor = null;
                     else
                         _anchor = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Red );
@@ -166,7 +187,7 @@ namespace AnimalRPG
 
                 if ( !ReferenceEquals( _anchor , null ) )
                 {
-                    _searchRegion = _tileMap.OpenUniformCost( _anchor.Position / 32 , 15 );
+                    _searchRegion = _tileMap.OpenUniformCost( _anchor.Position / 32 , 35 );
                 }
                 else
                 {
@@ -176,13 +197,13 @@ namespace AnimalRPG
 
             if ( button == MouseButtons.Right )
             {
-                var tmpPoint = (position / 32).ToPoint();
+                var tmpPoint = (pos / 32).ToPoint();
                 var correctedPosition = tmpPoint.ToVector2() * 32;
 
                 if ( !ReferenceEquals( _target , null ) )
                 {
                     var rectangle = new Rectangle( _target.Position.ToPoint() , new Point( 32 ) );
-                    if ( rectangle.Contains( position.ToPoint() ) )
+                    if ( rectangle.Contains( pos.ToPoint() ) )
                         _target = null;
                     else
                         _target = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Blue );

@@ -31,26 +31,26 @@ namespace AnimalRPG.Input.Controllers
             foreach ( var k in _allKeys )
             {
                 if ( _currentState.IsKeyDown( k ) && _previousState.IsKeyUp( k ) )
-                    KeyPress( Id , k );
+                    OnKeyPress( Id , k );
                 else if ( _currentState.IsKeyDown( k ) )
-                    KeyDown( Id , k );
+                    OnKeyDown( Id , k );
                 else if ( _previousState.IsKeyDown( k ) )
-                    KeyRelease( Id , k );
+                    OnKeyRelease( Id , k );
                 else
-                    KeyUp( Id , k );
+                    OnKeyUp( Id , k );
             }
 
             _previousState = _currentState;
         }
         
         // Static Events
-        public static event Action<int , Keys> KeyPress = delegate
+        public static event Action<int , Keys> OnKeyPress = delegate
          { };
-        public static event Action<int , Keys> KeyDown = delegate
+        public static event Action<int , Keys> OnKeyDown = delegate
          { };
-        public static event Action<int , Keys> KeyRelease = delegate
+        public static event Action<int , Keys> OnKeyRelease = delegate
          { };
-        public static event Action<int , Keys> KeyUp = delegate
+        public static event Action<int , Keys> OnKeyUp = delegate
          { };
     }
 }

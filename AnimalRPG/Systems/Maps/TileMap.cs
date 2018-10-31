@@ -1,12 +1,8 @@
-﻿using AnimalRPG.Extensions;
-using AnimalRPG.Systems.Maps.Pathfinding;
+﻿using AnimalRPG.Systems.Maps.Pathfinding;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AnimalRPG.Systems.Maps
 {
@@ -45,6 +41,12 @@ namespace AnimalRPG.Systems.Maps
                     Tiles[ x , y ] = new Tile( x , y );
                 }
             }
+        }
+
+        public bool ContainsPosition( Vector2 position )
+        {
+            var boundingBox = new Rectangle( new Point() , (new Vector2( Width , Height ) * 32).ToPoint() );
+            return boundingBox.Contains( position );
         }
 
         public List<Tile> GetAdjacent( Tile tile ) => GetAdjacent( tile.X , tile.Y );
