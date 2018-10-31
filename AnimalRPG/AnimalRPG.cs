@@ -3,9 +3,11 @@ using AnimalRPG.Graphics;
 using AnimalRPG.Input;
 using AnimalRPG.Input.Controllers;
 using AnimalRPG.Systems.Maps;
+using AnimalRPG.Systems.Maps.Pathfinding;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.IO;
 
 namespace AnimalRPG
 {
@@ -19,26 +21,35 @@ namespace AnimalRPG
 
         InputManager _inputManager;
         TileMap _tileMap;
+        Anchor _anchor;
+        Anchor _target;
+        SearchRegion<Tile> _searchRegion;
+        Path<Tile> _path;
 
         public AnimalRPG()
         {
             graphics = new GraphicsDeviceManager( this );
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            Cursor.Initialize( new Vector2( 32 * 10 ) );
         }
-        
+
         protected override void Initialize()
         {
             Camera.Dimensions = new Vector2( GraphicsDevice.Viewport.Width , GraphicsDevice.Viewport.Width );
             Primitive.Initialize( GraphicsDevice );
 
+            Cursor.Ghost = Primitive.CreateRectangle( 32 , 32 , new Color( 0 , 255 , 0 , 50 ) );
+
             _inputManager = new InputManager();
-            var keyboardController = new KeyboardController(0);
-            var mouseController = new MouseController(1);
+            var keyboardController = new KeyboardController( 0 );
+            var mouseController = new MouseController( 1 );
             _inputManager.Controllers.Add( keyboardController.Id , keyboardController );
             _inputManager.Controllers.Add( mouseController.Id , mouseController );
-            
-            _tileMap = new TileMap( 10 , 10 );
+
+            MouseController.ButtonPress += HandleClick;
+
+            _tileMap = new TileMap( 25 , 25 );
 
             // DISABLED
             #region Input Debugging
@@ -87,36 +98,109 @@ namespace AnimalRPG
 
             base.Initialize();
         }
-        
+
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch( GraphicsDevice );
 
             // TODO: use this.Content to load your game content here
         }
-        
+
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
-        
-        protected override void Update(GameTime gameTime)
+
+        protected override void Update( GameTime gameTime )
         {
             _inputManager.Update();
 
-            base.Update(gameTime);
+            base.Update( gameTime );
         }
-        
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin();
+        protected override void Draw( GameTime gameTime )
+        {
+            GraphicsDevice.Clear( Color.Black );
+
+            spriteBatch.Begin( blendState: BlendState.NonPremultiplied );
             _tileMap.Draw( spriteBatch );
+
+            if ( !ReferenceEquals( _searchRegion , null ) )
+                _searchRegion.Draw( spriteBatch );
+
+            if ( !ReferenceEquals( _path , null ) )
+                _path.Draw( spriteBatch );
+            
+            if ( !ReferenceEquals( _anchor , null ) )
+                _anchor.Draw( spriteBatch );
+            
+            if ( !ReferenceEquals( _target , null ) )
+                _target.Draw( spriteBatch );
+
+            Cursor.Draw( spriteBatch );
             spriteBatch.End();
 
-            base.Draw(gameTime);
+            base.Draw( gameTime );
+        }
+
+        private void HandleClick( int index , MouseButtons button , Vector2 position )
+        {
+            if ( button == MouseButtons.Left )
+            {
+                var tmpPoint = (position / 32).ToPoint();
+                var correctedPosition = tmpPoint.ToVector2() * 32;
+
+                if ( !ReferenceEquals( _anchor , null ) )
+                {
+                    var rectangle = new Rectangle( _anchor.Position.ToPoint() , new Point( 32 ) );
+                    if ( rectangle.Contains( position.ToPoint() ) )
+                        _anchor = null;
+                    else
+                        _anchor = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Red );
+                }
+                else
+                {
+                    _anchor = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Red );
+                }
+
+                if ( !ReferenceEquals( _anchor , null ) )
+                {
+                    _searchRegion = _tileMap.OpenUniformCost( _anchor.Position / 32 , 15 );
+                }
+                else
+                {
+                    _searchRegion = null;
+                }
+            }
+
+            if ( button == MouseButtons.Right )
+            {
+                var tmpPoint = (position / 32).ToPoint();
+                var correctedPosition = tmpPoint.ToVector2() * 32;
+
+                if ( !ReferenceEquals( _target , null ) )
+                {
+                    var rectangle = new Rectangle( _target.Position.ToPoint() , new Point( 32 ) );
+                    if ( rectangle.Contains( position.ToPoint() ) )
+                        _target = null;
+                    else
+                        _target = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Blue );
+                }
+                else
+                {
+                    _target = new Anchor( correctedPosition.X , correctedPosition.Y , Color.Blue );
+                }
+            }
+
+            if ( !ReferenceEquals( _anchor , null ) && !ReferenceEquals( _target , null ) && _searchRegion.ContainsItem( _tileMap.TryGetTile( _target.Position / 32 ) ) )
+            {
+                _path = _tileMap.AStar( _anchor.Position / 32 , _target.Position / 32 );
+            }
+            else
+            {
+                _path = null;
+            }
         }
     }
 }

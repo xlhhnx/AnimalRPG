@@ -1,4 +1,5 @@
 ﻿using AnimalRPG.Extensions;
+using AnimalRPG.Systems.Maps.Pathfinding;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -98,6 +99,61 @@ namespace AnimalRPG.Systems.Maps
         public bool AreAdjacent( Point a , Point b )
         {
             return (b - a).ToVector2().Length() == 1f;
+        }
+
+        public SearchRegion<Tile> OpenUniformCost( Vector2 position , int move ) => OpenUniformCost( (int)position.X , (int)position.Y , move );
+        public SearchRegion<Tile> OpenUniformCost( int x , int y , int move )
+        {
+            if ( x >= 0
+                && y >= 0
+                && x < Width
+                && y < Height )
+            {
+                var startTile = Tiles[ x , y ];
+                return this.OpenUniformCost( startTile , move );
+            }
+            else
+            {
+                return new SearchRegion<Tile>( new TileEqualityComparer() );
+            }
+        }
+
+        public Path<Tile> AStar( Vector2 start , Vector2 end ) => AStar( (int)start.X , (int)start.Y , (int)end.X , (int)end.Y );
+        public Path<Tile> AStar( int xStart , int yStart , int xEnd , int yEnd )
+        {
+            if ( xStart >= 0
+                && yStart >= 0
+                && xStart < Width
+                && yStart < Height 
+                && xEnd >= 0
+                && yEnd >= 0
+                && xEnd < Width
+                && yEnd < Height )
+            {
+                var startTile = Tiles[ xStart , yStart ];
+                var endTile = Tiles[ xEnd , yEnd ];
+                return this.AStar( startTile , endTile );
+            }
+            else
+            {
+                return new Path<Tile>( new TileEqualityComparer() );
+            }
+        }
+
+        public Tile TryGetTile( Vector2 position ) => TryGetTile( (int)position.X , (int)position.Y );
+        public Tile TryGetTile( int x , int y )
+        {
+            if ( x >= 0
+                && y >= 0
+                && x < Width
+                && y < Height )
+            {
+                return Tiles[ x , y ];
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

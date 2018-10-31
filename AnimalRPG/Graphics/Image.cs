@@ -40,6 +40,9 @@ namespace AnimalRPG.Graphics
             get => _enabled;
             set => _enabled = value;
         }
+        public Texture2D Texture { get { return _texture; } }
+        public Vector2 SourcePosition { get { return _sourcePosition; } }
+        public Vector2 SourceDimensions { get { return _sourceDimensions; } }
 
         protected Texture2D _texture;
         protected Vector2 _sourcePosition;

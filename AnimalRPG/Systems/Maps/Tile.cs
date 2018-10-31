@@ -1,4 +1,5 @@
 ﻿using AnimalRPG.Display;
+using AnimalRPG.Extensions;
 using AnimalRPG.Graphics;
 using AnimalRPG.Input.Controllers;
 using Microsoft.Xna.Framework;
@@ -13,9 +14,12 @@ namespace AnimalRPG.Systems.Maps
 {
     public class Tile
     {
+        public static Random rand = new Random();
+
         public Point MapIndex { get => new Point( X , Y ); }
         public Vector2 Location { get => new Vector2( X * 32 , Y * 32 ); }
         public Terrain Terrain { get; set; }
+        public Image Overlay { get; set; }
         public int X
         {
             get => _x;
@@ -42,18 +46,24 @@ namespace AnimalRPG.Systems.Maps
 
         public Tile( int x , int y )
         {
+            MoveCost = rand.Next( 1 , 10 );
+            var colorVector = new Vector3( 255 ) / MoveCost;
+            var color = new Color( (int)colorVector.X , (int)colorVector.Y , (int)colorVector.Z , 255 );
+            var image = Primitive.CreateRectangle( 32 , 32 , color );
+
             Terrain = new Terrain()
             {
                 Name = "Test" ,
-                MoveCost = 1 ,
-                Image = Primitive.CreateRectangle( 32 , 32 , Color.White )
+                MoveCost = MoveCost ,
+                Image = image
             };
+            Overlay = Primitive.CreateRectangle( 32 , 32 , new Color() );
 
             MouseController.MouseMove += HandleMouseMove;
 
             X = x;
             Y = y;
-            MoveCost = 1;
+            Overlay.DrawPosition = new Vector2( X * 32 , Y * 32 );
         }
 
         ~Tile()
@@ -64,15 +74,24 @@ namespace AnimalRPG.Systems.Maps
         public void Draw( SpriteBatch spriteBatch )
         {
             Terrain.Draw( spriteBatch );
+            Overlay.Draw( spriteBatch );
         }
 
+        bool _alreadyInside = false;
+        Color _color = new Color( 0 , 255 , 0 , 150 );
         public void HandleMouseMove( int inputIndex , Vector2 mousePosition )
         {
             var mouseInsideCurrent = IsMouseInside( mousePosition );
-            if ( IsMouseInside( mousePosition ) )
-                Terrain.Image.Tint = Color.Blue;
-            else
-                Terrain.Image.Tint = Color.White;
+            if ( mouseInsideCurrent && !_alreadyInside )
+            {
+                Overlay.Tint = Overlay.Tint.Add( _color );
+                _alreadyInside = true;
+            }
+            else if ( !mouseInsideCurrent && _alreadyInside )
+            {
+                Overlay.Tint = new Color();
+                _alreadyInside = false;
+            }
         }
 
         private bool IsMouseInside( Vector2 mousePosition )

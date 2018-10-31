@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using AnimalRPG.Graphics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AnimalRPG.Systems.Maps.Pathfinding
@@ -49,9 +52,24 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
             return path;
         }
 
-        public void ApplyOverlay()
+        public void Draw( SpriteBatch spriteBatch )
         {
-            // TODO
+            if ( typeof( T ) == typeof( Tile ) )
+            {
+                var image = Primitive.CreateRectangle( new Vector2( 32 ) , new Vector2( 4 ) , new Vector2( 27 ) , new Color( 255 , 255 , 0 , 150 ) );
+                foreach ( var t in _nodes )
+                {
+                    var tile = t.Item as Tile;
+                    image.DrawPosition = tile.Location;
+                    image.Draw( spriteBatch );
+                }
+            }
+        }
+
+        public bool ContainsItem( T item )
+        {
+            return _nodes.Where( n => _comparer.Equals( n.Item , item ) )
+                         .Any();
         }
 
         private Node<T> GetNode( T item )

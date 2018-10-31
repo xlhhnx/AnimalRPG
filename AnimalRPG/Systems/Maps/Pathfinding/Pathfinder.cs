@@ -8,11 +8,11 @@ using Priority_Queue;
 
 namespace AnimalRPG.Systems.Maps.Pathfinding
 {
-    public static class Hueristic 
+    public static class Pathfinder 
     {
         public static SearchRegion<Tile> OpenUniformCost( this TileMap map , Tile startTile , int move )
         {
-            var searchRegion = new SearchRegion<Tile>(new TileEqualityComparer());
+            var searchRegion = new SearchRegion<Tile>( new TileEqualityComparer() );
             var closed = new List<Tile>();
             var open = new SimplePriorityQueue<Tile>();
 
@@ -22,9 +22,10 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
             {
                 var parentPriority = open.GetPriority( open.First );
                 var parentTile = open.Dequeue();
-                
+
                 var adjacent = map.GetAdjacent( parentTile )
-                                  .Where(a => !closed.Contains(a));
+                                  .Where( a => !closed.Contains( a , new TileEqualityComparer() ) && !open.Contains( a , new TileEqualityComparer() ) )
+                                  .ToList();
                 foreach ( var a in adjacent )
                 {
                     var priority = a.MoveCost + parentPriority;
@@ -42,7 +43,7 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
 
         public static Path<Tile> AStar( this TileMap map , Tile startTile , params Tile[] waypoint )
         {
-            var path = new Path<Tile>(new TileEqualityComparer());
+            var path = new Path<Tile>( new TileEqualityComparer() );
 
             var tiles = new List<Tile>() { startTile };
             tiles.AddRange( waypoint );
@@ -73,7 +74,8 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
                     break;
 
                 var adjacent = map.GetAdjacent( parentTile )
-                                  .Where( a => !closed.Contains( a ) );
+                                  .Where( a => !closed.Contains( a , new TileEqualityComparer() ) && !open.Contains( a , new TileEqualityComparer() ) )
+                                  .ToList();
                 foreach ( var a in adjacent )
                 {
                     searchRegion.Add( a , parentTile );
@@ -90,7 +92,7 @@ namespace AnimalRPG.Systems.Maps.Pathfinding
                 closed.Add( parentTile );
             }
 
-            return searchRegion.GetPath(endTile);
+            return searchRegion.GetPath( endTile );
         }
 
         private static float ManhattanDistance( Point a , Point b )

@@ -21,6 +21,7 @@ namespace AnimalRPG.Graphics
             _initialized = true;
         }
 
+        public static Image CreateRectangle( Vector2 dimensions , Color color ) => CreateRectangle( dimensions.X , dimensions.Y , color );
         public static Image CreateRectangle(float width, float height, Color color)
         {
             CheckInitialization();
@@ -30,6 +31,42 @@ namespace AnimalRPG.Graphics
             {
                 DrawDimensions = new Vector2( width , height )
             };
+        }
+
+        public static Image CreateRectangle( Vector2 dimensions , Vector2 startPosition , Vector2 endPosition , Color color ) => CreateRectangle( dimensions.X , dimensions.Y , startPosition.X , startPosition.Y , endPosition.X , endPosition.Y , color );
+        public static Image CreateRectangle(float width, float height, float xPos, float yPos, float xEnd, float yEnd, Color color)
+        {            
+            CheckInitialization();
+
+            var colors = new Color[ (int)width * (int)height ];
+            for ( var y = 0; y < height; y++ )
+            {
+                for ( var x = 0; x < width; x++ )
+                {
+                    if ( x > xPos
+                        && y > yPos
+                        && x <= xEnd
+                        && y <= yEnd
+                        )
+                    {
+                        colors[ x + y * (int)width ] = color;
+                    }
+                    else
+                    {
+                        colors[ x + y * (int)width ] = new Color();
+                    }
+                }
+            }
+
+            var texture = CreateTexture(width, height, colors);
+            return new Image( texture , Vector2.Zero , new Vector2( texture.Width , texture.Height ) , Color.White );
+        }
+
+        private static Texture2D CreateTexture( float width , float height , Color[] colors )
+        {
+            var texture = new Texture2D( _graphicsDevice , (int)width , (int)height , false , SurfaceFormat.Color );
+            texture.SetData( colors );
+            return texture;
         }
 
         private static Texture2D GetPixel()
